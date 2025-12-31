@@ -1,4 +1,0 @@
-/Users/konnorrogers/projects/games/dragonruby-steam-achievements/build/CMakeFiles/extension.dir
-/Users/konnorrogers/projects/games/dragonruby-steam-achievements/build/CMakeFiles/distclean.dir
-/Users/konnorrogers/projects/games/dragonruby-steam-achievements/build/CMakeFiles/edit_cache.dir
-/Users/konnorrogers/projects/games/dragonruby-steam-achievements/build/CMakeFiles/rebuild_cache.dir
