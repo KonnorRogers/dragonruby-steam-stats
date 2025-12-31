@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/konnorrogers/projects/games/dragonruby-steam-achievements/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -Dextension_EXPORTS -I/Users/konnorrogers/projects/games/dragonruby-steam-achievements/include -I/Users/konnorrogers/projects/games/dragonruby-steam-achievements/steam-sdk/public -std=gnu++11 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk -mmacosx-version-min=14.6 -fPIC -o CMakeFiles/extension.dir/lib/extension.cpp.o -c /Users/konnorrogers/projects/games/dragonruby-steam-achievements/lib/extension.cpp",
+  "file": "/Users/konnorrogers/projects/games/dragonruby-steam-achievements/lib/extension.cpp",
+  "output": "CMakeFiles/extension.dir/lib/extension.cpp.o"
+}
+]

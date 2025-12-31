@@ -1,8 +1,0 @@
-CompileFlags:
-  Add: [
-    -shared,
-    -I../include/mruby,
-    -I../include,
-    -I../,
-    -I/opt/homebrew/include
-  ]
