@@ -180,13 +180,13 @@ jobs:
           cp mygame/VERSION.txt ./tmp/steam_stats/VERSION.txt
           cp mygame/CHANGELOG.txt ./tmp/steam_stats/CHANGELOG.txt
           cp -r mygame/native/* ./tmp/steam_stats/native/
-          tar -czf steam_stats.tar.gz -C ./tmp/steam_stats .
+          tar -czf steam_stats-${{ github.ref_name }}.tar.gz -C ./tmp/steam_stats .
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: steam_stats-${{ github.ref_name }}.tar.gz
-          path: ./steam_stats.tar.gz
+          path: ./steam_stats-${{ github.ref_name }}.tar.gz
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
