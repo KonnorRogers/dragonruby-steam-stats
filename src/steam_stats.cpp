@@ -10,72 +10,25 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <sys/sysctl.h>
-#include <sys/types.h>
 #include <unistd.h>
 }
 
 #include "./steam_stats.h"
 
 extern "C" {
-	typedef enum LogLevel
+    typedef enum LogLevel
 	{
-    	LOG_LEVEL_SPAM=0,  // periodic (SPAMMY!) logging, like framerate updates, etc.
-    	LOG_LEVEL_DEBUG, // Debug stuff that might be uninteresting/spammy
-    	LOG_LEVEL_INFO,  // basic information. Good default log level.
-    	LOG_LEVEL_WARN,  // warnings that should be noticed.
-    	LOG_LEVEL_ERROR,  // errors that should always be noticed.
-    	LOG_LEVEL_UNFILTERED=0x7FFFFFFE,   // items that should be logged (almost) unconditionally.
-    	LOG_LEVEL_NOTHING=0x7FFFFFFF   // don't ever log this thing.
-	} LogLevel;
+	LOG_LEVEL_SPAM=0,  // periodic (SPAMMY!) logging, like framerate updates, etc.
+	LOG_LEVEL_DEBUG, // Debug stuff that might be uninteresting/spammy
+	LOG_LEVEL_INFO,  // basic information. Good default log level.
+	LOG_LEVEL_WARN,  // warnings that should be noticed.
+	LOG_LEVEL_ERROR,  // errors that should always be noticed.
+	LOG_LEVEL_UNFILTERED=0x7FFFFFFE,   // items that should be logged (almost) unconditionally.
+	LOG_LEVEL_NOTHING=0x7FFFFFFF   // don't ever log this thing.
+    } LogLevel;
 
-    // Stupid silly hack to be able to use `OutputDebugString` from Steam's API page. Maybe not needed?
-    // https://stackoverflow.com/a/417846
-    bool IsDebuggerPresent() {
-        int mib[4];
-        struct kinfo_proc info;
-        size_t size;
-
-        info.kp_proc.p_flag = 0;
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_PROC;
-        mib[2] = KERN_PROC_PID;
-        mib[3] = getpid();
-
-        size = sizeof(info);
-        sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-
-        return ((info.kp_proc.p_flag & P_TRACED) != 0);
-    }
-
-    void OutputDebugString(const char *__restrict fmt, ...) {
-        if( !IsDebuggerPresent() )
-            return;
-
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-        va_end(args);
-    }
-
-    static mrb_value _mrb_hash_or_class_value (mrb_state *state, mrb_value elem, mrb_value key) {
-    	    auto is_hash = mrb_bool(mrb_check_hash_type(state, elem));
-    	    if (is_hash) {
-    	    	    return mrb_hash_get(state, elem, key);
-    	    } else {
-    	    	if (mrb_class_p(elem)) {
-    	    		auto klass = mrb_class_ptr(elem);
-    	    		auto sym = mrb_symbol(key);
-
-    	    		if ( mrb_obj_respond_to(state, klass, sym) ) {
-    	    			mrb_funcall_id(state, mrb_obj_value(klass), sym, MRB_ARGS_NONE());
-    	    		}
-    	    	}
-    	    }
-
-    	    return mrb_nil_value();
-    }
-
+    static drb_api_t *drb_api;
+    mrb_state *global_state;
 }
 
 // https://partner.steamgames.com/doc/api/ISteamGameServerStats <-- setting achieves from server
@@ -196,13 +149,13 @@ void CSteamStats::OnUserStatsReceived( UserStatsReceived_t *pCallback )
 	{
 		if ( k_EResultOK == pCallback->m_eResult )
 		{
-			OutputDebugString("Received stats and achievements from Steam\n");
+			drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG,"Received stats and achievements from Steam\n");
 		}
 		else
 		{
 			char buffer[128];
 			snprintf( buffer, 128, "RequestStats - failed, %d\n", pCallback->m_eResult );
-			OutputDebugString( buffer );
+			drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG, buffer );
 		}
 	}
 }
@@ -214,13 +167,13 @@ void CSteamStats::OnUserStatsStored( UserStatsStored_t *pCallback )
 	{
 		if ( k_EResultOK == pCallback->m_eResult )
 		{
-			OutputDebugString( "Stored stats for Steam\n" );
+    			drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG, "Stored stats for Steam\n");
 		}
 		else
 		{
 			char buffer[128];
 			snprintf( buffer, 128, "StatsStored - failed, %d\n", pCallback->m_eResult );
-			OutputDebugString( buffer );
+    			drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG, buffer);
 		}
 	}
 }
@@ -230,15 +183,12 @@ void CSteamStats::OnAchievementStored( UserAchievementStored_t *pCallback )
      // we may get callbacks for other games' stats arriving, ignore them
      if ( app_id == pCallback->m_nGameID )
      {
-          OutputDebugString( "Stored Achievement for Steam\n" );
+          drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG, "Stored Achievement for Steam\n" );
      }
 }
 
 
 extern "C" {
-    static drb_api_t *drb_api;
-    mrb_state *global_state;
-
     CSteamStats *steamStats = new CSteamStats();
 
     static void steam_stats_shutdown () {
@@ -309,7 +259,7 @@ extern "C" {
     	}
 
     	strcat(buffer, close_parentheses);
-    	drb_api->drb_log_write("Steam::ClientStats", LOG_LEVEL_DEBUG, buffer);
+    	drb_api->drb_log_write("steam_stats", LOG_LEVEL_DEBUG, buffer);
     }
 
     // Will "reset" an achievement
