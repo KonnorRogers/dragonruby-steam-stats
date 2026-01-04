@@ -12,6 +12,20 @@ message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 set(STEAMWORKS_SDK "${CMAKE_SOURCE_DIR}/steam-sdk")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Check for cross-compilation environment variable
+if(DEFINED ENV{TARGET_ARCH})
+    if(ENV{TARGET_ARCH} STREQUAL "arm64")
+        set(TARGET_ARCH $ENV{TARGET_ARCH})
+        message(STATUS "Cross-compiling for architecture: ${TARGET_ARCH}")
+        set(CMAKE_SYSTEM_NAME Linux)
+        set(CMAKE_SYSTEM_PROCESSOR aarch64)
+        set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+        set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+        # Force CMake to recognize this as cross-compilation
+        set(CMAKE_CROSSCOMPILING TRUE)
+    endif()
+endif()
+
 
 if(WIN32)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -35,13 +49,16 @@ elseif(APPLE)
     set(STEAM_DYLIB "libsteam_api.dylib")
 elseif(UNIX)
     set(DLLEXT "so")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+
+    # Check TARGET_ARCH first (for cross-compilation), then CMAKE_SYSTEM_PROCESSOR
+    if(DEFINED TARGET_ARCH AND TARGET_ARCH STREQUAL "arm64")
         set(PLATFORM "linux-arm64")
         set(STEAM_LIB_DIR "${STEAMWORKS_SDK}/redistributable_bin/linux64")
     else()
         set(PLATFORM "linux-amd64")
         set(STEAM_LIB_DIR "${STEAMWORKS_SDK}/redistributable_bin/linux64")
     endif()
+
     set(STEAM_LIB "steam_api")
     set(STEAM_DYLIB "libsteam_api.so")
 else()

@@ -20,6 +20,8 @@ jobs:
             dragonruby_arch: amd64
           - arch: aarch64
             dragonruby_arch: arm64
+    env:
+      TARGET_ARCH: ${{ matrix.dragonruby_arch }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
