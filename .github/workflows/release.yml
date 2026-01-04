@@ -166,7 +166,8 @@ jobs:
 
       - name: Organize extensions
         run: |
-          cp -r artifacts/ mygame/native/*
+          rm -rf mygame/native/*
+          cp -r artifacts/* mygame/native/*
 
       - name: Create release package
         run: |
