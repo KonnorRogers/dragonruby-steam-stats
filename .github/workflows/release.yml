@@ -175,6 +175,7 @@ jobs:
           mkdir -p ./tmp/steam_stats/native
           cp mygame/steam_stats.rb ./tmp/steam_stats/
           cp mygame/VERSION.txt ./tmp/steam_stats/VERSION.txt
+          cp mygame/CHANGELOG.txt ./tmp/steam_stats/CHANGELOG.txt
           cp -r mygame/native/* ./tmp/steam_stats/native/
           tar -czf steam_stats.tar.gz -C ./tmp/steam_stats .
 
