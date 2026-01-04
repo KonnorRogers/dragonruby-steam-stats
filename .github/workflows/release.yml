@@ -161,8 +161,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -177,6 +175,7 @@ jobs:
         run: |
           mkdir -p ./tmp/steam_stats/native
           cp mygame/steam_stats.rb ./tmp/steam_stats/
+          cp mygame/VERSION.txt ./tmp/steam_stats/VERSION.txt
           cp -r mygame/native/* ./tmp/steam_stats/native/
           tar -czf steam_stats.tar.gz -C ./tmp/steam_stats .
 
@@ -185,5 +184,3 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: native-extensions.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
