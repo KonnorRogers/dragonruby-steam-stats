@@ -33,6 +33,11 @@ find "$source_dir" -maxdepth 1 -print0 | while IFS= read -r -d $'\0' filename; d
       continue
     fi
 
+    if [ "$base_filename" = "samples" ]; then
+      # Particularly in CI, not worth pulling samples.
+      continue
+    fi
+
     if [ "$base_filename" = "mygame" ] && [ -d "$destination_dir/mygame" ]; then
       # "mygame" already exists. Don't overwrite it.
       continue

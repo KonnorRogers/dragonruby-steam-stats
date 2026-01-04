@@ -13,9 +13,8 @@ set(STEAMWORKS_SDK "${CMAKE_SOURCE_DIR}/steam-sdk")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Check for cross-compilation environment variable
-if(DEFINED ENV{TARGET_ARCH})
-    if(ENV{TARGET_ARCH} STREQUAL "arm64")
-        set(TARGET_ARCH $ENV{TARGET_ARCH})
+if(DEFINED TARGET_ARCH)
+    if(TARGET_ARCH STREQUAL "arm64")
         message(STATUS "Cross-compiling for architecture: ${TARGET_ARCH}")
         set(CMAKE_SYSTEM_NAME Linux)
         set(CMAKE_SYSTEM_PROCESSOR aarch64)

@@ -7,7 +7,7 @@ all: build
 
 build:
 	@mkdir -p build
-	@cd build && cmake -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_C_COMPILER=$(CC) .. && cmake --build .
+	@cd build && cmake -DTARGET_ARCH=$(TARGET_ARCH) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_C_COMPILER=$(CC) .. && cmake --build .
 
 clean:
 	rm -rf build mygame/native

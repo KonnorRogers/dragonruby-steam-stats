@@ -49,21 +49,18 @@ jobs:
           ls -a
 
       - name: Build Linux ${{ matrix.arch }}
-        env:
-          TARGET_ARCH: ${{ matrix.dragonruby_arch }}
         run: |
+          export TARGET_ARCH="${{ matrix.dragonruby_arch }}"
           make build
 
       - name: Native Test Linux ${{ matrix.arch }}
-        env:
-          TARGET_ARCH: ${{ matrix.dragonruby_arch }}
         run: |
+          export TARGET_ARCH="${{ matrix.dragonruby_arch }}"
           make test-native
 
       - name: Non-Native Test Linux ${{ matrix.arch }}
-        env:
-          TARGET_ARCH: ${{ matrix.dragonruby_arch }}
         run: |
+          export TARGET_ARCH="${{ matrix.dragonruby_arch }}"
           make test-non-native
 
       - name: Upload Linux ${{ matrix.dragonruby_arch }} artifacts
@@ -179,8 +176,14 @@ jobs:
           cp -r mygame/native/* ./tmp/steam_stats/native/
           tar -czf steam_stats.tar.gz -C ./tmp/steam_stats .
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: steam_stats.tar.gz
+          path: ./steam_stats.tar.gz
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: native-extensions.tar.gz
+          files: steam_stats.tar.gz
