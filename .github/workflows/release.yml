@@ -42,10 +42,11 @@ jobs:
       - name: Get DragonRuby
         run: |
           mkdir -p ./tmp
-          curl -L $(curl -u "${{ secrets.DRAGONRUBY_USERNAME }}:${{ secrets.DRAGONRUBY_PASSWORD }}" https://dragonruby.org/api/download_pro_subscription_mac) -o ./tmp/dragonruby.zip
+          curl -L $(curl -u "${{ secrets.DRAGONRUBY_USERNAME }}:${{ secrets.DRAGONRUBY_PASSWORD }}" https://dragonruby.org/api/download_pro_subscription_linux) -o ./tmp/dragonruby.zip
           mkdir -p ./tmp/dragonruby-tmp
           unzip ./tmp/dragonruby.zip -d ./tmp/dragonruby-tmp
-          bash ./copy-dragonruby ./tmp/dragonruby-tmp .
+          bash ./copy-dragonruby ./tmp/dragonruby-tmp/dragonruby-linux-amd64 .
+          ls -a
 
       - name: Build Linux ${{ matrix.arch }}
         run: |
@@ -81,10 +82,11 @@ jobs:
       - name: Get DragonRuby
         run: |
           mkdir -p ./tmp
-          curl -L $(curl -u "${{ secrets.DRAGONRUBY_USERNAME }}:${{ secrets.DRAGONRUBY_PASSWORD }}" https://dragonruby.org/api/download_pro_subscription_mac) -o ./tmp/dragonruby.zip
+          curl -L $(curl -u "${{ secrets.DRAGONRUBY_USERNAME }}:${{ secrets.DRAGONRUBY_PASSWORD }}" https://dragonruby.org/api/download_pro_subscription_windows) -o ./tmp/dragonruby.zip
           mkdir -p ./tmp/dragonruby-tmp
           unzip ./tmp/dragonruby.zip -d ./tmp/dragonruby-tmp
-          bash ./copy-dragonruby ./tmp/dragonruby-tmp .
+          bash ./copy-dragonruby ./tmp/dragonruby-tmp/dragonruby-windows-amd64 .
+          ls -a
 
       - name: Build Windows x64
         run: |
@@ -122,8 +124,8 @@ jobs:
           curl -L $(curl -u "${{ secrets.DRAGONRUBY_USERNAME }}:${{ secrets.DRAGONRUBY_PASSWORD }}" https://dragonruby.org/api/download_pro_subscription_mac) -o ./tmp/dragonruby.zip
           mkdir -p ./tmp/dragonruby-tmp
           unzip ./tmp/dragonruby.zip -d ./tmp/dragonruby-tmp
-          bash ./copy-dragonruby ./tmp/dragonruby-tmp .
-
+          bash ./copy-dragonruby ./tmp/dragonruby-tmp/dragonruby-macos .
+          ls -a
 
       - name: Build MacOS
         run: |
