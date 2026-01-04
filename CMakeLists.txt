@@ -52,11 +52,12 @@ elseif(UNIX)
     # Check TARGET_ARCH first (for cross-compilation), then CMAKE_SYSTEM_PROCESSOR
     if(DEFINED TARGET_ARCH AND TARGET_ARCH STREQUAL "arm64")
         set(PLATFORM "linux-arm64")
+        set(STEAM_LIB_DIR "${STEAMWORKS_SDK}/redistributable_bin/linuxarm-64")
     else()
         set(PLATFORM "linux-amd64")
+        set(STEAM_LIB_DIR "${STEAMWORKS_SDK}/redistributable_bin/linux64")
     endif()
 
-    set(STEAM_LIB_DIR "${STEAMWORKS_SDK}/redistributable_bin/${PLATFORM}")
     set(STEAM_LIB "steam_api")
     set(STEAM_DYLIB "libsteam_api.so")
 else()
