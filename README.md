@@ -14,7 +14,7 @@ These are DragonRuby bindings for the [ISteamUserStats](https://partner.steamgam
 
 ## Installation
 
-Grab the precompiled binaries + Ruby code from [/releases](./releases) and place them in `mygame/vendor/steam_stats`
+Grab the precompiled binaries + Ruby code from [Releases](https://github.com/KonnorRogers/dragonruby-steam-stats/releases), grab the `steam_stats-v*.*.*` and extract it to: `mygame/vendor/steam_stats`
 
 ## Getting Started
 
