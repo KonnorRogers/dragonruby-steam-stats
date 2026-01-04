@@ -82,15 +82,18 @@ extern "C" {
 // https://partner.steamgames.com/doc/api/ISteamUserStats <-- setting achievements client side
 
 CSteamStats::CSteamStats():
- app_id( 0 ),
- initialized( false ),
  callbackUserStatsReceived( this, &CSteamStats::OnUserStatsReceived ),
  callbackUserStatsStored( this, &CSteamStats::OnUserStatsStored ),
  callbackAchievementStored( this, &CSteamStats::OnAchievementStored )
 {
-     bool steam_initialized = SteamAPI_Init();
-     if (steam_initialized) {
-     	app_id = SteamUtils()->GetAppID();
+     this->app_id = -1;
+     this->initialized = SteamAPI_Init();
+     if (this->initialized) {
+     	this->app_id = SteamUtils()->GetAppID();
+
+     	if (!this->app_id) {
+     		this->app_id = -1;
+     	}
      }
 
 }
@@ -98,7 +101,7 @@ CSteamStats::CSteamStats():
 bool CSteamStats::UnlockAchievement(const char* ID)
 {
 	// Have we received a call back from Steam yet?
-	if (initialized)
+	if (this->initialized)
 	{
 		return SteamUserStats()->SetAchievement(ID);
 	}
@@ -109,7 +112,7 @@ bool CSteamStats::UnlockAchievement(const char* ID)
 int CSteamStats::GetAchievementStatus(const char* ID) {
 	bool isUnlocked;
 
-	if (initialized && SteamUserStats()->GetAchievement(ID, &isUnlocked)) {
+	if (this->initialized && SteamUserStats()->GetAchievement(ID, &isUnlocked)) {
     		if (isUnlocked) {
     			return 1;
     		} else {
@@ -123,7 +126,7 @@ int CSteamStats::GetAchievementStatus(const char* ID) {
 // Can get an arbitrary user's achievement status given their steamId (Not implemented)
 int CSteamStats::GetUserAchievementStatus(CSteamID steamIDUser, const char* ID) {
 	bool isUnlocked;
-	if (initialized && SteamUserStats()->GetUserAchievement(steamIDUser, ID, &isUnlocked)) {
+	if (this->initialized && SteamUserStats()->GetUserAchievement(steamIDUser, ID, &isUnlocked)) {
     		if (isUnlocked) {
     			return 1;
     		} else {
@@ -136,14 +139,14 @@ int CSteamStats::GetUserAchievementStatus(CSteamID steamIDUser, const char* ID) 
 
 // This will flash the progress dialog
 bool CSteamStats::IndicateAchievementProgress(const char *name, uint32 currentProgress, uint32 maxProgress) {
-	if (!initialized) { return false; }
+	if (!this->initialized) { return false; }
 
 	return SteamUserStats()->IndicateAchievementProgress(name, currentProgress, maxProgress);
 }
 
 
 bool CSteamStats::ResetAllStats() {
-	if (!initialized) {
+	if (!this->initialized) {
 		return false;
 	}
 
@@ -152,7 +155,7 @@ bool CSteamStats::ResetAllStats() {
 
 
 bool CSteamStats::ResetAllStatsAndAchievements() {
-	if (!initialized) {
+	if (!this->initialized) {
 		return false;
 	}
 
@@ -160,13 +163,13 @@ bool CSteamStats::ResetAllStatsAndAchievements() {
 }
 
 bool CSteamStats::SetStat(const char *name, int32 data) {
-	if (!initialized) { return false; }
+	if (!this->initialized) { return false; }
 
 	return SteamUserStats()->SetStat(name, data);
 }
 
 bool CSteamStats::SetStat(const char *name, float data) {
-	if (!initialized) { return false; }
+	if (!this->initialized) { return false; }
 
 	return SteamUserStats()->SetStat(name, data);
 }
@@ -174,7 +177,7 @@ bool CSteamStats::SetStat(const char *name, float data) {
 bool CSteamStats::ClearAchievement(const char* ID)
 {
 	// Have we received a call back from Steam yet?
-	if (!initialized) {
+	if (!this->initialized) {
 		// If not then we can't set achievements yet
 		return false;
 	}
@@ -182,7 +185,7 @@ bool CSteamStats::ClearAchievement(const char* ID)
 }
 
 bool CSteamStats::StoreStats() {
-	if (!initialized) { return false; }
+	if (!this->initialized) { return false; }
 	return SteamUserStats()->StoreStats();
 }
 
@@ -346,6 +349,19 @@ extern "C" {
 		return mrb_bool_value(steamStats->StoreStats());
     }
 
+    static mrb_value steam_stats_mrb_initialized(mrb_state *state, mrb_value self) {
+		return mrb_bool_value(steamStats->initialized);
+    }
+
+    static mrb_value steam_stats_mrb_app_id(mrb_state *state, mrb_value self) {
+		int64 app_id = steamStats->app_id;
+		if (app_id == -1) {
+			return drb_api->mrb_nil_value();
+		}
+
+		return drb_api->mrb_int_value(state, app_id);
+    }
+
     DRB_FFI_EXPORT
     void drb_register_c_extensions_with_api(mrb_state *state, struct drb_api_t *api) {
         drb_api = api;
@@ -353,6 +369,8 @@ extern "C" {
         struct RClass *SteamStats = drb_api->mrb_define_module_under(state, SteamModule, "ClientStats");
 
 	// Singleton for steam achievements, may live to regret this, but fine for now.
+	drb_api->mrb_define_module_function(state, SteamStats, "initialized?", steam_stats_mrb_initialized, MRB_ARGS_NONE());
+	drb_api->mrb_define_module_function(state, SteamStats, "app_id", steam_stats_mrb_app_id, MRB_ARGS_NONE());
 
 	// SetStat
 	drb_api->mrb_define_module_function(state, SteamStats, "set_stat", steam_stats_mrb_set_stat, MRB_ARGS_REQ(2));
@@ -374,6 +392,7 @@ extern "C" {
 
         printf("* INFO: C extension 'steam_stats' registration completed.\n");
 
+	drb_api->mrb_state_atexit(state, steam_stats_mrb_shutdown);
 	mrb_atexit_func(steam_stats_mrb_shutdown);
         atexit(steam_stats_shutdown);
     }

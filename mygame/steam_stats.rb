@@ -4,6 +4,14 @@ begin
 rescue
   module Steam
     module ClientStats
+      def self.app_id
+        nil
+      end
+
+      def self.initialized?
+        false
+      end
+
       def self.set_stat(name, int)
         false
       end

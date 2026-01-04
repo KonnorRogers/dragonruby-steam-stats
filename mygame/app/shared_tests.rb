@@ -22,6 +22,8 @@ module SharedTestsModule
 
   def test_methods_defined(args, assert)
     methods = [
+      :initialized?,
+      :app_id,
       :set_stat,
       :unlock_achievement,
       :clear_achievement,
@@ -37,6 +39,16 @@ module SharedTestsModule
         "Steam::ClientStats should respond to #{method}"
       )
     end
+  end
+
+  def test_app_id(args, assert)
+    result = Steam::ClientStats.app_id
+    assert.true!(result == nil)
+  end
+
+  def test_initialized?(args, assert)
+    result = Steam::ClientStats.initialized?
+    assert.true!(result == false)
   end
 
   def test_clear_achievement_accepts_string(args, assert)

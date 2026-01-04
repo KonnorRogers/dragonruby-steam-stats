@@ -3,14 +3,12 @@
 
 class CSteamStats
 {
-private:
-	int64 app_id; // Our current AppID
-	bool initialized; // Have we called Request stats and received the callback?
-
 public:
 	CSteamStats();
 	~CSteamStats();
 
+	int64 app_id; // Our current AppID
+	bool initialized; // Have we called Request stats and received the callback?
 	bool UnlockAchievement(const char *ID);
 	bool ClearAchievement(const char *ID);
 	bool UpdateAchievement(const char *ID);
